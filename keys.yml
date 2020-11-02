@@ -1,11 +1,10 @@
 ---
 - hosts: all
   become: yes
-  become_user: "{{ ubuntu }}"
   tasks:
   - name: Set authorized key
     authorized_key:
-      when: user
+      when: ubuntu
       state: present
       key: 'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAQEAhpdtviD47/qQUZEv6xMwF3faVOr8dkHsPL5//8ENWqgue0QsH/cw4YtUAAkGK6LvWPiFwGIQLLf+BHrobxAKoyJCS+j7VVzPANN3G/5r7epQYk2mT2uFBx7Xieh7UKhlmpSogv/qJo7aRwP7fcJ3t8x602JPemogujZYlkuAAM7QuTg9BLbjfV0Yr1x4Pvc+Pr84r4VvSmzsCjygMsziMDCvXvrxt6JtUUaAT+sHInwGM/RGEufApzFD7dP9SaTBFgA5GHbfRCoRnapIBKKHuPxEid0Puwosrs/CXHEVC8OcE6tjr4U51mpm2P4ygsMFsgHG+36HaAaSdGcWdHzUEQ=='
   
