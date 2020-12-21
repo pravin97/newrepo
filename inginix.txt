@@ -1,0 +1,98 @@
+Install nginx
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: Installs nginx web server
+      apt: pkg=nginx update_cache=yes state=latest
+      notify:
+        - start nginx
+
+  handlers:
+    - name: start nginx
+      service: name=nginx state=started
+
+--------------------------------------------------------------------------------
+Install nvm with node 
+
+---
+- hosts: all
+  tasks:
+    - name: Create destination dir if it does not exist
+      file:
+        mode: 0775
+        path: "/usr/local/nvm"
+        state: directory
+      when: "nvm_dir is not defined"
+    - name: Install NVM
+      shell: 'curl https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | NVM_SOURCE="" NVM_DIR=/usr/local/nvmPROFILE=/root/.bashrc bash'
+      args:
+        warn: false
+      register: nvm_result
+    - name: Install node and set version
+      become: yes
+      become_user: root
+      shell: nvm install 8.11.3
+    - name: Install pm2
+      npm:
+        name: pm2
+        global: yes
+       
+
+/etc/nginx/sites-available
+
+---
+- hosts: all
+  tasks:
+    - name: ensure nginx is at the latest version
+      apt: name=nginx state=latest
+      become: yes
+    - name: start nginx
+      service:
+          name: nginx
+          state: started
+      become: yes
+    - name: copy the nginx config file and restart nginx
+      copy:
+        src: /home/node/node.cfg
+        dest: /etc/nginx/sites-available/static_site.cfg
+      become: yes
+    - name: create symlink
+      file:
+        src: /etc/nginx/sites-available/static_site.cfg
+        dest: /etc/nginx/sites-enabled/default
+        state: link
+      become: yes
+    - name: copy the content of the web site
+      copy:
+        src: /home/ubuntu/node/
+        dest: /home/foo/static-site
+    - name: restart nginx
+      service: name=nginx state=restarted enabled=yes
+      become: yes
+
+/home/node/static-site
+
+https://code-maven.com/install-and-configure-nginx-using-ansible
+
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: "nvm"
+  shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.2/install.sh | bash
+  args:
+    executable: /bin/bash
+    - name: "install node through nvm"
+      apt: pkg=nvm install node update_cache=yes state=latest
+      become: yes
+  args:
+    warn: false
+    - name: Install nvm latest
+      apt: pkg=nvm install --lts update_cache=yes state=latest
+    - name: npm Install pm2
+      apt: pkg=npm install -g pm2 update_cache=yes state=latest
+
+https://devops4solutions.medium.com/automate-letsencrypt-ssl-installation-with-ansible-for-multiple-domains-8453f2c3212d
+       
